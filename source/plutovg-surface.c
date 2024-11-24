@@ -253,9 +253,10 @@ void plutovg_convert_argb_to_rgba(unsigned char* dst, const unsigned char* src, 
             if(a == 0) {
                 dst_row[x] = 0x00000000;
             } else {
-                uint32_t r = (pixel >> 16) & 0xFF;
+                /* Correction in R, G, B order */
+                uint32_t r = (pixel >> 0) & 0xFF;
                 uint32_t g = (pixel >> 8) & 0xFF;
-                uint32_t b = (pixel >> 0) & 0xFF;
+                uint32_t b = (pixel >> 16) & 0xFF;
                 if(a != 255) {
                     r = (r * 255) / a;
                     g = (g * 255) / a;
@@ -265,6 +266,16 @@ void plutovg_convert_argb_to_rgba(unsigned char* dst, const unsigned char* src, 
                 dst_row[x] = (a << 24) | (b << 16) | (g << 8) | r;
             }
         }
+    }
+
+    /* flip the image upside down along y axis (height) */
+    uint32_t buffer[width];
+    for(int y = 0; y < (height >> 1); y++) {
+        uint32_t* upper_row = (uint32_t*)(dst + stride * (height - y - 1));
+        uint32_t* lower_row = (uint32_t*)(src + stride * y);
+        memcpy(buffer, upper_row, sizeof(uint32_t) * width);
+        memcpy(upper_row, lower_row, sizeof(uint32_t) * width);
+        memcpy(lower_row, buffer, sizeof(uint32_t) * width);
     }
 }
 
