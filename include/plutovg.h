@@ -29,8 +29,16 @@
 extern "C" {
 #endif
 
+#if !defined(PLUTOVG_BUILD_STATIC) && (defined(_WIN32) || defined(__CYGWIN__))
+#define PLUTOVG_EXPORT __declspec(dllexport)
+#define PLUTOVG_IMPORT __declspec(dllimport)
+#elif defined(__GNUC__) && (__GNUC__ >= 4)
+#define PLUTOVG_EXPORT __attribute__((__visibility__("default")))
+#define PLUTOVG_IMPORT
+#else
 #define PLUTOVG_EXPORT
 #define PLUTOVG_IMPORT
+#endif
 
 #ifdef PLUTOVG_BUILD
 #define PLUTOVG_API PLUTOVG_EXPORT
